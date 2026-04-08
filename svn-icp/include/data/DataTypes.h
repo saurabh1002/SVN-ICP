@@ -10,15 +10,20 @@
 
 #include <shared_mutex>
 
-#include <rclcpp/rclcpp.hpp>
+// Always-available third-party headers
+#include <gtsam/geometry/Pose3.h>
 #include <gtsam/base/Vector.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <torch/torch.h>
+
+// ROS-dependent headers — excluded when building without ROS
+#ifndef SVNICP_NO_ROS
+#include <rclcpp/rclcpp.hpp>
 #include <gtsam/navigation/NavState.h>
 #include <gtsam/navigation/ImuBias.h>
 #include <gtsam/linear/NoiseModel.h>
-
-#include<pcl/point_cloud.h>
-#include<pcl/point_types.h>
-#include<torch/torch.h>
+#endif
 
 namespace svnicp::data_types{
 
@@ -27,6 +32,7 @@ namespace svnicp::data_types{
     using Device_type = c10::DeviceType;
     using at::indexing::Slice;
 
+#ifndef SVNICP_NO_ROS
     struct Pose
     {
         rclcpp::Time timestamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
@@ -141,6 +147,7 @@ namespace svnicp::data_types{
         gtsam::Vector3 mag{};
         gtsam::Vector9 magCov{};
     };
+#endif // SVNICP_NO_ROS
 
      struct Odom
      {
