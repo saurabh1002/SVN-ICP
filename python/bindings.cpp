@@ -138,11 +138,16 @@ tensor_to_numpy(const torch::Tensor& t)
 }
 
 /**
- * Convert a 6-element pose tensor [tx, ty, tz, rx, ry, rz] (angle-axis
- * rotation) to a 4x4 SE(3) float64 numpy matrix.
+ * Convert a 6-element pose tensor [tx, ty, tz, rx, ry, rz] to a 4x4 SE(3)
+ * float64 numpy matrix.
  *
- * Uses ICPUtils::tensor2Matrix which treats [rx, ry, rz] as the axis-angle
- * rotation vector composed via ZYX Euler angles.
+ * Delegates to ICPUtils::tensor2Matrix, which treats [rx, ry, rz] as
+ * ZYX Euler angles (roll, pitch, yaw) and builds the rotation matrix as
+ *   R = Rz(rz) * Ry(ry) * Rx(rx).
+ * Note: this is the convention used by SVGDICP (the base class).  SVNICP
+ * uses axis-angle internally; if you obtained the tensor from
+ * SVNICP::get_transformation() you may prefer pose_to_tensor / the gtsam
+ * Rot3::Expmap path for the inverse direction.
  */
 static py::array_t<double>
 tensor_to_pose(const torch::Tensor& tensor)
